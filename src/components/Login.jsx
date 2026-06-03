@@ -15,7 +15,7 @@ const Login = () => {
     e.preventDefault()
     console.log("Form submitted")
     toast.success(isLogin ? "Logged in!" : "Account created!");
-    navigate('/chatbox')
+    navigate('/dashboard')
   }
   const navigate = useNavigate()
 

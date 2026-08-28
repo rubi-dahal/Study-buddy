@@ -9,26 +9,29 @@ const ChatBox = () => {
   const chatEndRef = useRef(null);
 
   const generateBotResponse = async (history) => {
-    const updateHistory=(text) =>{
+    const updateHistory = (text) => {
       setChatHistory(
-        prev=>[...prev.filter(msg=>msg.text !=="Thinking..."),{role:'model', text}]
+        (prev) => [...prev.filter((msg) => msg.text !== "Thinking..."), { role: "model", text }]
       );
-    }
+    };
     history = history.map(({role,text})=>({role, parts:[{text}]}));
     const requestOptions = {
       method: "POST",
       headers:{"Content-Type":"application/json"},
       body: JSON.stringify({contents: history})
     }
-    try{
-       const response = await fetch(import.meta.env.VITE_API_URL, requestOptions);
-       const data= await response.json();
-       if(!response.ok) throw new Error(data.error.message || "Something went wrong!");
-        
-       const apiResponseText = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, '$1').trim(); // Remove ** for bold text
-       updateHistory(apiResponseText);
-    } catch(error){
-       console.log(error);
+    try {
+      const response = await fetch(import.meta.env.VITE_API_URL, requestOptions);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error?.message || "Something went wrong!");
+
+      const apiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text
+        ?.replace(/\*\*(.*?)\*\*/g, "$1")
+        .trim();
+      if (!apiResponseText) throw new Error("The AI returned an empty response.");
+      updateHistory(apiResponseText);
+    } catch (error) {
+      updateHistory(`Sorry, I couldn't respond: ${error.message}`);
     }
   };
 
